@@ -16,11 +16,30 @@ public static class OptionsService
         if (string.IsNullOrEmpty(content))
             throw new EmptyJsonFileException("Empty json file.");
 
-        IEnumerable<string> links = JsonSerializer.Deserialize<IEnumerable<string>>(content);
+        IEnumerable<string> links = JsonSerializer.Deserialize<IEnumerable<string>>(content)
+            ?? new List<string>();
 
-        var repository = new ArticleRepository(options.Db);
+        IArticleRepository? repository = null;
 
-        foreach (var item in links)
+        bool shouldPersistArticles = false;
+
+        if (!string.IsNullOrEmpty(options.SqlitePath))
+        {
+            repository = new SqliteRepository(options.SqlitePath);
+            shouldPersistArticles = true;
+        }
+        else if (!string.IsNullOrEmpty(options.MariaDbConnection))
+        {
+            repository = new MariaDbRepository(options.MariaDbConnection);
+            shouldPersistArticles = true;
+        }
+
+        var parallelOptions = new ParallelOptions()
+        {
+            MaxDegreeOfParallelism = options.MaxThreadsCount
+        };
+
+        Parallel.ForEach(links, parallelOptions, item =>
         {
             var channel = new Channel(item);
 
@@ -31,7 +50,7 @@ public static class OptionsService
             if (!isValid)
             {
                 Console.WriteLine($"Invalid url: {item}");
-                continue;
+                return;
             }
 
             try
@@ -44,7 +63,11 @@ public static class OptionsService
                     channel: channel,
                     encode: encode);
 
-                if (String.IsNullOrEmpty(options.Db))
+                if (shouldPersistArticles)
+                {
+                    repository.Insert(articles);
+                }
+                else
                 {
                     Console.WriteLine("===");
                     Console.WriteLine(item);
@@ -54,15 +77,11 @@ public static class OptionsService
                         Console.WriteLine(article.Title);
                     }
                 }
-                else
-                {
-                    repository.Insert(articles);
-                }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
             }
-        }
+        });
     }
 }

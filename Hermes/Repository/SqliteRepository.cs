@@ -5,11 +5,11 @@ using System.Web;
 
 namespace Hermes.Repository;
 
-public class ArticleRepository
+public class SqliteRepository : IArticleRepository
 {
     private string _connectionString;
 
-    public ArticleRepository(string dbPath)
+    public SqliteRepository(string dbPath)
     {
         if (!string.IsNullOrEmpty(dbPath)
             && !File.Exists(dbPath))
