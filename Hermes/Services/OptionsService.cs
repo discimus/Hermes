@@ -33,6 +33,11 @@ public static class OptionsService
             repository = new MariaDbRepository(options.MariaDbConnection);
             shouldPersistArticles = true;
         }
+        else if (!string.IsNullOrEmpty(options.MssqlConnection))
+        {
+            repository = new MssqlRepository(options.MssqlConnection);
+            shouldPersistArticles = true;
+        }
 
         var parallelOptions = new ParallelOptions()
         {

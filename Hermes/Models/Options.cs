@@ -13,9 +13,12 @@ public class Options
     [Option("mariadb-conn", Required = false, HelpText = "MariaDB connection string")]
     public string MariaDbConnection { get; set; }
 
+    [Option("mssql-conn", Required = false, HelpText = "SQL Server connection string")]
+    public string MssqlConnection { get; set; }
+
     [Option('e', "encode", Required = false, HelpText = "Encode para dsserializar retorno")]
     public string Encode { get; set; }
 
-    [Option("max-threads-count", Required = false, HelpText = "Teto de threads que serão geradas para consultas HTTP assíncronas", Default = 10)]
+    [Option("max-threads-count", Required = false, HelpText = "Teto de threads que serï¿½o geradas para consultas HTTP assï¿½ncronas", Default = 10)]
     public int MaxThreadsCount { get; set; }
 }
