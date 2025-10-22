@@ -23,20 +23,18 @@ public class MssqlRepository : IArticleRepository
         using (var connection = new SqlConnection(_connectionString))
         {
             string query = @"
-				INSERT INTO tb_article (
-				    article_title,
-				    article_link,
-				    article_channel,
-				    article_content,
-				    article_published_at,
-				    article_created_at)
-				VALUES (
-					@article_title,
-					@article_link,
-					@article_channel,
-					@article_content,
-					@article_published_at,
-					@article_created_at)";
+                merge tb_article as t
+                using (select 
+                    @article_title as article_title,
+                    @article_link as article_link,
+                    @article_channel as article_channel,
+                    @article_content as article_content,
+                    @article_published_at as article_published_at,
+                    @article_created_at as article_created_at) as s
+                on t.article_link = s.article_link or t.article_title = s.article_title
+                when not matched then
+                insert (article_title, article_link, article_channel, article_content, article_published_at, article_created_at)
+                values (s.article_title, s.article_link, s.article_channel, s.article_content, s.article_published_at, s.article_created_at);";
             
             connection.Execute(query, articles.Select(t => new
             {
