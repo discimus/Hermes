@@ -1,6 +1,9 @@
 using Hermes.Exceptions;
 using Hermes.Models;
 using Hermes.Repository;
+using Spectre.Console;
+using System.Collections.Concurrent;
+using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace Hermes.Services;
@@ -44,6 +47,8 @@ public static class OptionsService
             MaxDegreeOfParallelism = options.MaxThreadsCount
         };
 
+        ConcurrentBag<Article> threadSafeArticles = new ConcurrentBag<Article>();
+
         Parallel.ForEach(links, parallelOptions, item =>
         {
             var channel = new Channel(item);
@@ -54,7 +59,11 @@ public static class OptionsService
 
             if (!isValid)
             {
-                Console.WriteLine($"Invalid url: {item}");
+                if (!options.HideLogs)
+                {
+                    Console.WriteLine($"Invalid url: {item}");
+                }
+
                 return;
             }
 
@@ -72,6 +81,13 @@ public static class OptionsService
                 {
                     repository.Insert(articles);
                 }
+                else if (options.OutputJson)
+                {
+                    foreach (var article in articles)
+                    {
+                        threadSafeArticles.Add(article);
+                    }
+                }
                 else
                 {
                     Console.WriteLine("===");
@@ -79,14 +95,25 @@ public static class OptionsService
 
                     foreach (var article in articles)
                     {
-                        Console.WriteLine(article.Title);
+                        AnsiConsole.MarkupLine($"[link={article.Link}]{article.Title}[/]");
                     }
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                if (!options.HideLogs)
+                {
+                    Console.WriteLine(e.ToString());
+                }
             }
         });
+
+        if (options.OutputJson)
+        {
+            IEnumerable<Article> ordered = options.Limit.HasValue
+                ? threadSafeArticles.OrderByDescending(t => t.PublishedAt).Take(options.Limit.Value)
+                : threadSafeArticles.OrderByDescending(t => t.PublishedAt);
+            Console.WriteLine(JsonSerializer.Serialize(ordered));
+        }
     }
 }

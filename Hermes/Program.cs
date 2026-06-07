@@ -25,7 +25,11 @@ class Program
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.ToString());
+                    if (!t.HideLogs)
+                    {
+                        Console.WriteLine(e.ToString());
+                    }
+
                     throw;
                 }
             });
