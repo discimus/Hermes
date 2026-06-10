@@ -16,6 +16,9 @@ public class Options
     [Option("hide-logs", Required = false, HelpText = "Deve imprimir logs", Default = false)]
     public bool HideLogs { get; init; }
 
+    [Option("remove-duplicates", Required = false, HelpText = "Deve ignorar artigos duplicados", Default = false)]
+    public bool RemoveDuplicates { get; init; }
+
     [Option("use-parallelism", Required = false, HelpText = "Executar em paralelo", Default = false)]
     public bool UseParallelism { get; init; }
 

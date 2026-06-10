@@ -113,6 +113,11 @@ public static class OptionsService
             IEnumerable<Article> ordered = options.Limit.HasValue
                 ? threadSafeArticles.OrderByDescending(t => t.PublishedAt).Take(options.Limit.Value)
                 : threadSafeArticles.OrderByDescending(t => t.PublishedAt);
+
+            ordered = options.RemoveDuplicates
+                ? ordered.DistinctBy(t => t.Link)
+                : ordered;
+
             Console.WriteLine(JsonSerializer.Serialize(ordered));
         }
     }
