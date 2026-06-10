@@ -110,13 +110,13 @@ public static class OptionsService
 
         if (options.OutputJson)
         {
-            IEnumerable<Article> ordered = options.Limit.HasValue
-                ? threadSafeArticles.OrderByDescending(t => t.PublishedAt).Take(options.Limit.Value)
-                : threadSafeArticles.OrderByDescending(t => t.PublishedAt);
+            IEnumerable<Article> articles = options.RemoveDuplicates
+                ? threadSafeArticles.DistinctBy(t => t.Link)
+                : threadSafeArticles;
 
-            ordered = options.RemoveDuplicates
-                ? ordered.DistinctBy(t => t.Link)
-                : ordered;
+            IEnumerable<Article> ordered = options.Limit.HasValue
+                ? articles.OrderByDescending(t => t.PublishedAt).Take(options.Limit.Value)
+                : articles.OrderByDescending(t => t.PublishedAt);
 
             Console.WriteLine(JsonSerializer.Serialize(ordered));
         }
