@@ -8,7 +8,8 @@ public static class ChannelService
 {
     public static IEnumerable<Article> ExtractArticles(
         Channel channel,
-        string encode = "utf-8")
+        string encode = "utf-8",
+        bool truncateText = false)
     {
         var articles = new List<Article>();
 
@@ -36,7 +37,9 @@ public static class ChannelService
                         {
                             Title = item.Title,
                             Link = item.Link,
-                            Content = item.Description,
+                            Content = truncateText
+                                ? item.Description.Substring(0, Math.Min(item.Description.Length, 500))
+                                : item.Description,
                             Channel = channel.Url,
                             PublishedAt = item.PublishingDate.HasValue
                                 ?  item.PublishingDate.Value

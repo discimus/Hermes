@@ -22,6 +22,9 @@ public class Options
     [Option("use-parallelism", Required = false, HelpText = "Executar em paralelo", Default = false)]
     public bool UseParallelism { get; init; }
 
+    [Option("truncate-text", Required = false, HelpText = "Limitar o tamanho do textos", Default = false)]
+    public bool TruncateText { get; init; }
+
     [Option("mariadb-conn", Required = false, HelpText = "MariaDB connection string")]
     public string MariaDbConnection { get; init; }
 
