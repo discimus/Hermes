@@ -76,7 +76,8 @@ public static class OptionsService
                 IEnumerable<Article> articles = ChannelService.ExtractArticles(
                     channel: channel,
                     encode: encode,
-                    truncateText: options.TruncateText);
+                    truncateText: options.TruncateText,
+                    hideLogs: options.HideLogs);
 
                 if (shouldPersistArticles)
                 {

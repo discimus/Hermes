@@ -9,7 +9,8 @@ public static class ChannelService
     public static IEnumerable<Article> ExtractArticles(
         Channel channel,
         string encode = "utf-8",
-        bool truncateText = false)
+        bool truncateText = false,
+        bool hideLogs = false)
     {
         var articles = new List<Article>();
 
@@ -33,13 +34,15 @@ public static class ChannelService
                 {
                     try
                     {
+                        string description = item.Description ?? "";
+
                         var article = new Article()
                         {
                             Title = item.Title,
                             Link = item.Link,
                             Content = truncateText
-                                ? item.Description.Substring(0, Math.Min(item.Description.Length, 500))
-                                : item.Description,
+                                ? description.Substring(0, Math.Min(description.Length, 500))
+                                : description,
                             Channel = channel.Url,
                             PublishedAt = item.PublishingDate.HasValue
                                 ?  item.PublishingDate.Value
@@ -51,7 +54,9 @@ public static class ChannelService
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e);
+                        if (!hideLogs)
+                            Console.WriteLine(e);
+    
                         continue;
                     }
                 }
